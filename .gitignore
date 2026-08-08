@@ -4,12 +4,10 @@
 /checkouts
 /bin
 /out
-deps.edn
 .cpcache
 .project
 .classpath
 pom.xml
-deps.edn
 *.jar
 *.class
 .lein-deps-sum

@@ -1,0 +1,19 @@
+{:paths ["src"]
+ :aliases
+ {;; Run the test suite with jolt (or any tools.deps CLI): `jolt -X:jolt`.
+  ;; The cognitect test-runner discovers test namespaces by scanning for
+  ;; *_test.clj files; instaparse's tests are .cljc, so it needs an explicit
+  ;; :nses list. "test" is on the classpath (lein's :test-paths) so the
+  ;; io/resource lookups in abnf_test resolve test/data/*.txt.
+  :jolt
+  {:extra-paths ["test"]
+   :extra-deps {io.github.cognitect-labs/test-runner
+                {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+   :exec-fn cognitect.test-runner.api/test
+   :exec-args {:nses [instaparse.abnf-test
+                      instaparse.auto-flatten-seq-test
+                      instaparse.core-test
+                      instaparse.defparser-test
+                      instaparse.failure-test
+                      instaparse.namespaced-nts-test
+                      instaparse.repeat-test]}}}}

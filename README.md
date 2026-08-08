@@ -1,4 +1,4 @@
-# Instaparse 1.5.0
+# Instaparse for Jolt
 
 *What if context-free grammars were as easy to use as regular expressions?*
 
