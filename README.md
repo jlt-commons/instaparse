@@ -20,9 +20,9 @@ Instaparse aims to be the simplest way to build parsers in Clojure.
 
 Instaparse requires Clojure v1.5.1 or later, or ClojureScript v1.7.28 or later.
 
-Add the following line to your leiningen dependencies:
+Add the following to your `deps.edn`:
 
-	[instaparse "1.5.0"]
+	{:deps {io.github.jolt-lang/instaparse {:git/sha "f79fd7088d203306280a7df3a3c5ea8c7c18068b"}}}
 
 Require instaparse in your namespace header:
 
