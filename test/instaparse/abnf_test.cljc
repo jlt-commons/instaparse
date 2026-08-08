@@ -173,40 +173,54 @@ to test the lookahead"
       (is (not (instance? instaparse.gll.Failure (regex-chars (str c)))))
       (is (instance? instaparse.gll.Failure (regex-chars (str c)))))))
 
+;; Retargeted at jolt's string model. A jolt string is indexed by CODE POINT,
+;; not by UTF-16 code unit: an astral character is ONE element, (first poop) is
+;; the whole character and (second poop) is nil. So there is no surrogate half to
+;; hand a parser, and upstream's "each surrogate individually must fail" cases
+;; have no jolt equivalent \u2014 a half is not a value the language can hold.
+;; What replaces them: the positive form of the same fact (indexing out the
+;; character yields the character, and it parses), and the inputs that are still
+;; genuinely wrong here \u2014 the empty string, and a DIFFERENT astral character.
 (deftest unicode-test
-  (let [poop "\uD83D\uDCA9"]  ; U+1F4A9 PILE OF POO
+  (let [poop  "\uD83D\uDCA9"   ; U+1F4A9 PILE OF POO
+        broom "\uD83E\uDDF9"]  ; U+1F9F9 BROOM \u2014 astral, and not in any rule below
+    (is (= 1 (count poop)))
+    (is (= poop (str (first poop))))
+    (is (nil? (second poop)))
     (let [parser1 (parser "S = %x1F4A9"
                           :input-format :abnf)]
       (are [x y] (= x y)
-           (parses parser1 poop) [[:S poop]])
+           (parses parser1 poop) [[:S poop]]
+           (parses parser1 (str (first poop))) [[:S poop]])
       (are [x] (instance? instaparse.gll.Failure x)
            (parser1 (str poop poop))
-           (parser1 (str (first poop)))
-           ;; shouldn't work on the surrogate characters individually
-           (parser1 (str (second poop)))))
+           (parser1 "")
+           (parser1 broom)))
     (let [parser2 (parser "S = %x1F4A8-1F4A9"
                           :input-format :abnf)]
       (are [x y] (= x y)
-           (parses parser2 poop) [[:S poop]])
+           (parses parser2 poop) [[:S poop]]
+           (parses parser2 (str (first poop))) [[:S poop]])
       (are [x] (instance? instaparse.gll.Failure x)
            (parser2 (str poop poop))
-           (parser2 (str (first poop)))
-           (parser2 (str (second poop)))))
+           (parser2 "")
+           (parser2 broom)))
     (let [parser3 (parser "S = %x1F4A9.1F4A9.1F4A9"
                           :input-format :abnf)]
       (are [x y] (= x y)
            (parses parser3 (str poop poop poop)) [[:S poop poop poop]])
       (are [x] (instance? instaparse.gll.Failure x)
-           (parser3 (str poop))))
+           (parser3 (str poop))
+           (parser3 (str poop poop broom))))
     ;; it would be cool if EBNF supported unicode in a parser spec
     ;; (ABNF doesn't allow that though)
     (let [parser4 (parser (str "S = '" poop "'*"))]
       (are [x y] (= x y)
-           (parses parser4 (str poop poop poop)) [[:S poop poop poop]])
+           (parses parser4 (str poop poop poop)) [[:S poop poop poop]]
+           (parses parser4 (str (first poop))) [[:S poop]])
       (are [x] (instance? instaparse.gll.Failure x)
-           (parser4 (str (first poop)))
-           (parser4 (str (second poop)))
-           (parser4 (str poop poop (first poop)))))))
+           (parser4 broom)
+           (parser4 (str poop poop broom))))))
 
 (deftest abnf-combinator-test
   (let [p (parser (merge
