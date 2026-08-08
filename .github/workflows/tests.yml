@@ -10,6 +10,14 @@ jobs:
           set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y liblz4-1 zlib1g libtinfo6
+          # NEEDS JOLT > v0.6.8. The suite leans on jolt-lang/jolt#567: a deftype
+          # declaring a collection interface prints in that collection's shape
+          # (AutoFlattenSeq as a seq, FlattenOnDemandVector as a vector) and
+          # StringBuilder is a CharSequence. Against v0.6.8 that is 10 print-test
+          # failures and one "count not supported on this type: :object"; against
+          # main it is 9422 assertions, 0 failures. This goes green on the next
+          # release with no change here.
+          #
           # Install through jolt's own install script rather than resolving the
           # release asset here: it owns the archive and binary naming (which
           # changed in v0.5.0, when the CLI was renamed from joltc to jolt) and
