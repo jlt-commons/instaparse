@@ -22,7 +22,8 @@ Instaparse requires Clojure v1.5.1 or later, or ClojureScript v1.7.28 or later.
 
 Add the following to your `deps.edn`:
 
-	{:deps {io.github.jolt-lang/instaparse {:git/sha "f79fd7088d203306280a7df3a3c5ea8c7c18068b"}}}
+	{:deps {io.github.jlt-commons/instaparse {:git/tag "v1.5.0"
+	                                          :git/sha "4f6d41d888ade2886109bb2dffb9178f65caa90e"}}}
 
 Require instaparse in your namespace header:
 
