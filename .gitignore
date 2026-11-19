@@ -28,3 +28,4 @@ todo.txt
 .nrepl-history
 /.clj-kondo
 !/.clj-kondo/config.edn
+/.jolt
