@@ -4,7 +4,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install jolt
         run: |
           set -euo pipefail
@@ -21,7 +21,7 @@ jobs:
             | bash -s -- --dir "$HOME/.jolt"
           echo "$HOME/.jolt" >> "$GITHUB_PATH"
       - name: Cache deps
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.m2/repository
