@@ -10,13 +10,8 @@ jobs:
           set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y liblz4-1 zlib1g libtinfo6
-          # NEEDS JOLT > v0.6.8. The suite leans on jolt-lang/jolt#567: a deftype
-          # declaring a collection interface prints in that collection's shape
-          # (AutoFlattenSeq as a seq, FlattenOnDemandVector as a vector) and
-          # StringBuilder is a CharSequence. Against v0.6.8 that is 10 print-test
-          # failures and one "count not supported on this type: :object"; against
-          # main it is 9422 assertions, 0 failures. This goes green on the next
-          # release with no change here.
+          # Needs jolt > v0.6.8 (jolt-lang/jolt#567: deftypes declaring a
+          # collection interface print in that collection's shape).
           #
           # Install through jolt's own install script rather than resolving the
           # release asset here: it owns the archive and binary naming (which
@@ -25,6 +20,22 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/jolt-lang/jolt/main/install \
             | bash -s -- --dir "$HOME/.jolt"
           echo "$HOME/.jolt" >> "$GITHUB_PATH"
+      - name: Cache deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.jolt/gitlibs
+          key: deps-${{ hashFiles('deps.edn') }}
+      # Maven Central rate-limits shared runner IPs (HTTP 429). Fetch on its own
+      # step with a few retries so a throttled download doesn't fail the build.
+      - name: Fetch deps
+        run: |
+          for i in 1 2 3 4; do
+            JOLT_PWD="$PWD" jolt -P -X:jolt && exit 0
+            sleep $((i * 15))
+          done
+          exit 1
       # The :jolt alias runs the cognitect test-runner over an explicit :nses
       # list — instaparse's tests are .cljc, which the runner's *_test.clj scan
       # does not discover. "test" is on that alias's :extra-paths so abnf_test's
